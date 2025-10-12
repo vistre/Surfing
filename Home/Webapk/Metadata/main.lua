@@ -310,13 +310,36 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                         
                             return newCount
                         end
-            
-                        local onlineCount = getOnlineCount()
-                        addStyledText("\n😊当前在线 " .. onlineCount .. " 人", 14, 0xFF444444)
-                        addStyledText("@Surfing Web.apk 2023.", 16, 0xFF444444)
-                    end)
-                end
-            end)
+ 
+                        Http.get("https://test.ipw.cn", nil, "UTF-8", headers, function(code, content)
+                            
+                            local ipv4 = content:match("(%d+%.%d+%.%d+%.%d+)")
+                            local ipv6 = content:match("([0-9a-fA-F:]+:[0-9a-fA-F:]+)")
+                        
+                            local ipText = "获取失败"
+                            local networkTypeText = "获取失败"
+                        
+                            if ipv6 then
+                                ipText = ipv6
+                                networkTypeText = "您的网络 IPv6 优先"
+                            elseif ipv4 then
+                                ipText = ipv4
+                                networkTypeText = "您的网络 IPv4 优先"
+                            end
+                        
+                            addStyledText("\nIPw.cn", 14, 0xFF444444)
+                            addStyledText(networkTypeText, 14, 0xFF444444)
+                            addStyledText(ipText, 14, 0xFF444444)
+                            
+                            
+                            local onlineCount = getOnlineCount()
+                            addStyledText("\n😊当前在线 " .. onlineCount .. " 人", 14, 0xFF444444)
+                            addStyledText("@Surfing Web.apk 2023.", 16, 0xFF444444)
+                        end)
+                        
+                        end)
+                    end
+                end)
             end
             
             menu.add("元数据").onMenuItemClick = function(a)
