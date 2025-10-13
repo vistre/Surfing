@@ -311,32 +311,50 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                             return newCount
                         end
  
-                        Http.get("https://test.ipw.cn", nil, "UTF-8", headers, function(code, content)
+                            Http.get("https://6.ipw.cn", nil, "UTF-8", headers, function(code, content)
+                                local ipText = nil
+                                local networkTypeText = nil  -- 不再默认赋值
                             
-                            local ipv4 = content:match("(%d+%.%d+%.%d+%.%d+)")
-                            local ipv6 = content:match("([0-9a-fA-F:]+:[0-9a-fA-F:]+)")
-                        
-                            local ipText = "获取失败"
-                            local networkTypeText = "获取失败"
-                        
-                            if ipv6 then
-                                ipText = ipv6
-                                networkTypeText = "您的网络 IPv6 优先"
-                            elseif ipv4 then
-                                ipText = ipv4
-                                networkTypeText = "您的网络 IPv4 优先"
-                            end
-                        
-                            addStyledText("\nIPw.cn", 14, 0xFF444444)
-                            addStyledText(networkTypeText, 14, 0xFF444444)
-                            addStyledText(ipText, 14, 0xFF444444)
+                                if code == 200 and content then
+                                    local ipv6 = content:match("([0-9a-fA-F:]+:[0-9a-fA-F:]+)")
+                                    if ipv6 then
+                                        ipText = ipv6
+                                        networkTypeText = "您的网络 IPv6 优先"
+                                    end
+                                end
                             
+                                addStyledText("\nIPw.cn", 14, 0xFF444444)
                             
-                            local onlineCount = getOnlineCount()
-                            addStyledText("\n😊当前在线 " .. onlineCount .. " 人", 14, 0xFF444444)
-                            addStyledText("@Surfing Web.apk 2023.", 16, 0xFF444444)
-                        end)
-                        
+                                if ipText then
+                                    addStyledText(networkTypeText, 14, 0xFF444444)
+                                    addStyledText(ipText, 14, 0xFF444444)
+                                    -- 在线人数和版权
+                                    local onlineCount = getOnlineCount()
+                                    addStyledText("\n😊当前在线 " .. onlineCount .. " 人", 14, 0xFF444444)
+                                    addStyledText("@Surfing Web.apk 2023.", 16, 0xFF444444)
+                                else
+                            
+                                    Http.get("https://4.ipw.cn", nil, "UTF-8", headers, function(v4code, v4content)
+                                        local ipv4 = v4content and v4content:match("(%d+%.%d+%.%d+%.%d+)")
+                                        if v4code == 200 and ipv4 then
+                                            ipText = ipv4
+                                            networkTypeText = "当前网络 IPv6 不可达，使用 IPv4"
+                                        else
+                                            networkTypeText = "当前网络 IPv6/IPv4 不可达，可能网站错误"
+                                        end
+                            
+                                        addStyledText(networkTypeText, 14, 0xFF444444)
+                                        if ipText then
+                                            addStyledText(ipText, 14, 0xFF444444)
+                                        end
+                                
+                                        local onlineCount = getOnlineCount()
+                                        addStyledText("\n😊当前在线 " .. onlineCount .. " 人", 14, 0xFF444444)
+                                        addStyledText("@Surfing Web.apk 2023.", 16, 0xFF444444)
+                                    end)
+                                end
+                            end)
+                            
                         end)
                     end
                 end)
