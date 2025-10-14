@@ -266,50 +266,36 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                         local peakBaseCount = 0
                         
                         
-                        local lastOnlineCount = nil
-                        local lastUpdateTime = 0
-                        function getOnlineCount()
-                            local hour = tonumber(os.date("%H"))
-                            local now = os.time()
-                        
-                            local ranges = {
-                                {0, 6, 50, 300},
-                                {6, 12, 300, 800},
-                                {12, 18, 800, 2000},
-                                {18, 24, 2000, 5000},
-                            }
-                        
-                            local minCount, maxCount
-                            for _, r in ipairs(ranges) do
-                                if hour >= r[1] and hour < r[2] then
-                                    minCount, maxCount = r[3], r[4]
-                                    break
+                            local lastOnlineCount = nil
+                            local lastUpdateTime = 0
+                            
+                            function getOnlineCount()
+                                local now = os.time()
+                                local minCount, maxCount = 28000, 31000
+                            
+                                if not lastOnlineCount then
+                                    lastOnlineCount = math.random(minCount, maxCount)
+                                    lastUpdateTime = now
+                                    return lastOnlineCount
                                 end
-                            end
-                        
-                            if not lastOnlineCount then
-                                lastOnlineCount = math.random(minCount, maxCount)
+                            
+                                local delta = now - lastUpdateTime
+                            
+                                if delta < math.random(5, 15) then
+                                    return lastOnlineCount
+                                end
+                            
+                                local changePercent = math.random(-3, 3) / 100
+                                local newCount = math.floor(lastOnlineCount * (1 + changePercent))
+                            
+                                if newCount < minCount then newCount = minCount end
+                                if newCount > maxCount then newCount = maxCount end
+                            
+                                lastOnlineCount = newCount
                                 lastUpdateTime = now
-                                return lastOnlineCount
+                            
+                                return newCount
                             end
-                        
-                            local delta = now - lastUpdateTime
-                        
-                            if delta < math.random(5, 15) then
-                                return lastOnlineCount
-                            end
-                        
-                            local changePercent = math.random(-5, 5) / 100
-                            local newCount = math.floor(lastOnlineCount * (1 + changePercent))
-                        
-                            if newCount < minCount then newCount = minCount end
-                            if newCount > maxCount then newCount = maxCount end
-                        
-                            lastOnlineCount = newCount
-                            lastUpdateTime = now
-                        
-                            return newCount
-                        end
  
                             Http.get("https://6.ipw.cn", nil, "UTF-8", headers, function(code, content)
                                 local ipText = nil
@@ -328,7 +314,7 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                                 if ipText then
                                     addStyledText(networkTypeText, 14, 0xFF444444)
                                     addStyledText(ipText, 14, 0xFF444444)
-                                    -- 在线人数和版权
+                                    
                                     local onlineCount = getOnlineCount()
                                     addStyledText("\n😊当前在线 " .. onlineCount .. " 人", 14, 0xFF444444)
                                     addStyledText("@Surfing Web.apk 2023.", 16, 0xFF444444)
