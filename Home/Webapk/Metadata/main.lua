@@ -25,7 +25,7 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
         more.onClick = function()
             local pop = PopupMenu(activity, more)
             local menu = pop.Menu
-            
+
             menu.add("清除数据").onMenuItemClick = function(a)
                 local builder = AlertDialog.Builder(activity)
                 builder.setTitle("注意")
@@ -40,7 +40,7 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                 builder.setCancelable(false)
                 builder.show()
             end
-            
+
             menu.add("设置 URL").onMenuItemClick = function(a)
                 local builder = AlertDialog.Builder(activity)
                 builder.setTitle("设置URL")
@@ -58,7 +58,7 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                         local errorDialog = AlertDialog.Builder(activity)
                         errorDialog.setTitle("错误")
                         errorDialog.setMessage("请输入有效的URL链接！")
-                        errorDialog.setPositiveButton("确定", function(dialog, which) end)
+                        errorDialog.setPositiveButton("确定", nil)
                         errorDialog.setCancelable(false)
                         errorDialog.show()
                     end
@@ -67,74 +67,200 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                 builder.setCancelable(false)
                 builder.show()
             end
-            
-            menu.add("Ad 拦截测试").onMenuItemClick = function(b)
-              local url = "https://paileactivist.github.io/toolz/adblock.html"
-              webView.loadUrl(url)
+
+            menu.add("Ad 拦截测试").onMenuItemClick = function()
+                webView.loadUrl("https://paileactivist.github.io/toolz/adblock.html")
             end
-            
+
             menu.add("背景图床 URL").onMenuItemClick = function()
-              local intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://pomf2.lain.la/"))
-              activity.startActivity(intent)
-              return true
+                local intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://pomf2.lain.la/"))
+                activity.startActivity(intent)
+                return true
             end
-            
-            menu.add("IP 检查").onMenuItemClick = function(a)
+
+            menu.add("IP 检查").onMenuItemClick = function()
                 local subPop = PopupMenu(activity, more)
                 local subMenu = subPop.Menu
-                subMenu.add("IPW_CN").onMenuItemClick = function(b)
-                    local url = "https://ipw.cn/"
-                    webView.loadUrl(url)
+
+                subMenu.add("IPW_CN").onMenuItemClick = function()
+                    webView.loadUrl("https://ipw.cn/")
                 end
-                subMenu.add("纯IPv6测试").onMenuItemClick = function(b)
-                    local url = "https://ipv6.test-ipv6.com/"
-                    webView.loadUrl(url)
+
+                subMenu.add("纯IPv6测试").onMenuItemClick = function()
+                    webView.loadUrl("https://ipv6.test-ipv6.com/")
                 end
-                subMenu.add("网站延迟").onMenuItemClick = function(b)
-                    local url = "https://ip.skk.moe/simple"
-                    webView.loadUrl(url)
+
+                subMenu.add("网站延迟").onMenuItemClick = function()
+                    webView.loadUrl("https://ip.skk.moe/simple")
                 end
-                subMenu.add("DNS泄露测试").onMenuItemClick = function(b)
-                    local url = "https://www.browserscan.net/zh/dns-leak"
-                    webView.loadUrl(url)
+
+                subMenu.add("DNS泄露测试 (browserscan)").onMenuItemClick = function()
+                    webView.loadUrl("https://www.browserscan.net/zh/dns-leak")
                 end
-                subMenu.add("DNS泄露测试").onMenuItemClick = function(b)
-                    local url = "https://surfshark.com/zh/dns-leak-test"
-                    webView.loadUrl(url)
+
+                subMenu.add("DNS泄露测试 (Surfshark)").onMenuItemClick = function()
+                    webView.loadUrl("https://surfshark.com/zh/dns-leak-test")
                 end
+
                 subPop.show()
             end
-            
-            menu.add("切换面板").onMenuItemClick = function(a)
+
+            menu.add("切换面板").onMenuItemClick = function()
                 local subPop = PopupMenu(activity, more)
                 local subMenu = subPop.Menu
-                subMenu.add("Meta").onMenuItemClick = function(b)
+
+                subMenu.add("Meta").onMenuItemClick = function()
                     local url = "https://metacubex.github.io/metacubexd/#/proxies"
                     webView.loadUrl(url)
                     defaultUrl = url
-                    saveDefaultUrl(defaultUrl)
+                    saveDefaultUrl(url)
                 end
-                subMenu.add("Yacd").onMenuItemClick = function(b)
+
+                subMenu.add("Yacd").onMenuItemClick = function()
                     local url = "https://yacd.mereith.com/#/proxies"
                     webView.loadUrl(url)
                     defaultUrl = url
-                    saveDefaultUrl(defaultUrl)
+                    saveDefaultUrl(url)
                 end
-                subMenu.add("Zash").onMenuItemClick = function(b)
+
+                subMenu.add("Zash").onMenuItemClick = function()
                     local url = "https://board.zash.run.place/#/proxies"
                     webView.loadUrl(url)
                     defaultUrl = url
-                    saveDefaultUrl(defaultUrl)
+                    saveDefaultUrl(url)
                 end
-                subMenu.add("Local（本地端口）").onMenuItemClick = function(b)
+
+                subMenu.add("Local（本地端口）").onMenuItemClick = function()
                     local url = "http://127.0.0.1:9090/ui/#/proxies"
                     webView.loadUrl(url)
                     defaultUrl = url
-                    saveDefaultUrl(defaultUrl)
+                    saveDefaultUrl(url)
                 end
+
                 subPop.show()
             end
-            
+
+            local JSONObject = luajava.bindClass("org.json.JSONObject")
+
+            local function showVersionInfo(updateTime)
+                local layout = LinearLayout(activity)
+                layout.setOrientation(1)
+                layout.setPadding(60, 10, 60, 10)
+
+                local function addStyledText(text, size, color, bold)
+                    local tv = TextView(activity)
+                    tv.setText(text)
+                    tv.setTextSize(size)
+                    tv.setTextColor(color)
+                    tv.setTextIsSelectable(false)
+                    if bold then tv.setTypeface(nil, Typeface.BOLD) end
+                    layout.addView(tv)
+                    return tv
+                end
+
+                addStyledText("Metadate", 18, 0xFF000000, true)
+                addStyledText("Latestreleases " .. version, 15, 0xFF222222)
+                addStyledText("Timestamp: " .. updateTime, 14, 0xFF444444)
+                addStyledText("\n更新日志:", 16, 0xFF000000, true)
+
+                local scrollView = ScrollView(activity)
+                scrollView.setScrollbarFadingEnabled(false)
+                scrollView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET)
+                scrollView.setPadding(20, 5, 20, 5)
+
+                local logText = TextView(activity)
+                logText.setText(updateLog)
+                logText.setTextSize(13)
+                logText.setTextColor(0xFF888888)
+                logText.setPadding(0, 10, 0, 10)
+                logText.setLineSpacing(1.5, 1)
+                logText.setTextIsSelectable(true)
+                scrollView.addView(logText)
+
+                local dp = activity.getResources().getDisplayMetrics().density
+                local layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    math.floor(200 * dp + 0.5)
+                )
+                scrollView.setLayoutParams(layoutParams)
+                layout.addView(scrollView)
+
+                local builder = AlertDialog.Builder(activity)
+                builder.setView(layout)
+                builder.setNegativeButton("Git", nil)
+                builder.setPositiveButton("Telegram", nil)
+                builder.setNeutralButton("取消", nil)
+                builder.setCancelable(false)
+                local dialog = builder.show()
+
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setAllCaps(false)
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(View.OnClickListener{
+                    onClick = function()
+                        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/GitMetaio/Surfing")))
+                    end
+                })
+
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setAllCaps(false)
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(View.OnClickListener{
+                    onClick = function()
+                        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+vvlXyWYl6HowMTBl")))
+                    end
+                })
+
+                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setAllCaps(false)
+
+                Http.get("https://api-ipv4.ip.sb/geoip", nil, "UTF-8", headers, function(geoCode, geoContent)
+                    if geoCode == 200 and geoContent then
+                        local obj = JSONObject(geoContent)
+                        addStyledText("\nAPI ip.sb", 14, 0xFF444444)
+                        addStyledText(obj.optString("timezone", "获取失败..."), 14, 0xFF444444)
+                        addStyledText(obj.optString("isp", "获取失败..."), 14, 0xFF444444)
+                        addStyledText("ASN: " .. obj.optInt("asn", 0), 14, 0xFF444444)
+                        addStyledText("IPv4: " .. obj.optString("ip", "获取失败..."), 14, 0xFF444444)
+                    end
+
+                    Http.get("https://api-ipv6.ip.sb/geoip", nil, "UTF-8", headers, function(ipv6Code, ipv6Content)
+                        local ipV6Text = "IPv6: 当前节点不支持"
+                        if ipv6Code == 200 and ipv6Content and ipv6Content:match("%S") then
+                            local ok, objV6 = pcall(function() return JSONObject(ipv6Content) end)
+                            if ok then
+                                local ipV6 = objV6.optString("ip", "")
+                                if ipV6 ~= "" then ipV6Text = "IPv6: " .. ipV6 end
+                            end
+                        end
+                        addStyledText(ipV6Text, 14, 0xFF444444)
+
+                        Http.get("https://6.ipw.cn", nil, "UTF-8", headers, function(code, content)
+                            local ipText, networkTypeText
+                            if code == 200 and content then
+                                local ipv6 = content:match("([0-9a-fA-F:]+:[0-9a-fA-F:]+)")
+                                if ipv6 then
+                                    ipText, networkTypeText = ipv6, "您的网络 IPv6 优先"
+                                end
+                            end
+
+                            addStyledText("\nIPw.cn", 14, 0xFF444444)
+                            if ipText then
+                                addStyledText(networkTypeText, 14, 0xFF444444)
+                                addStyledText(ipText, 14, 0xFF444444)
+                            else
+                                Http.get("https://4.ipw.cn", nil, "UTF-8", headers, function(v4code, v4content)
+                                    local ipv4 = v4content and v4content:match("(%d+%.%d+%.%d+%.%d+)")
+                                    if v4code == 200 and ipv4 then
+                                        addStyledText("当前网络 IPv6 不可达，使用 IPv4", 14, 0xFF444444)
+                                        addStyledText(ipv4, 14, 0xFF444444)
+                                    else
+                                        addStyledText("当前网络 IPv6/IPv4 不可达，可能网站错误", 14, 0xFF444444)
+                                    end
+                                end)
+                            end
+
+                            addStyledText("@Surfing Web.apk 2023.", 16, 0xFF444444)
+                        end)
+                    end)
+                end)
+            end
+
             local function getLastCommitTime()
                 Http.get(url .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, content)
                     if code == 200 and content then
@@ -160,213 +286,29 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                     end
                 end)
             end
-            
-            local JSONObject = luajava.bindClass("org.json.JSONObject")
-            
-            function showVersionInfo(updateTime)
-              local layout = LinearLayout(activity)
-              layout.setOrientation(1)
-              layout.setPadding(60, 10, 60, 10)
-            
-              local function addStyledText(text, size, color, bold)
-                local tv = TextView(activity)
-                tv.setText(text)
-                tv.setTextSize(size)
-                tv.setTextColor(color)
-                tv.setTextIsSelectable(false)
-                if bold then
-                  tv.setTypeface(nil, Typeface.BOLD)
-                end
-                layout.addView(tv)
-                return tv
-              end
-            
-              addStyledText("Metadate", 18, 0xFF000000, true)
-              addStyledText("Latestreleases " .. version, 15, 0xFF222222)
-              addStyledText("Timestamp: " .. updateTime, 14, 0xFF444444)
-              addStyledText("\n更新日志:", 16, 0xFF000000, true)
-            
-              local scrollView = ScrollView(activity)
-              scrollView.setScrollbarFadingEnabled(false)
-              scrollView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET)
-              scrollView.setPadding(20, 5, 20, 5)
-            
-              local logText = TextView(activity)
-              logText.setText(updateLog)
-              logText.setTextSize(13)
-              logText.setTextColor(0xFF888888)
-              logText.setPadding(0, 10, 0, 10)
-              logText.setLineSpacing(1.5, 1)
-              logText.setTextIsSelectable(true)
-            
-              scrollView.addView(logText)
-            
-              local dp = activity.getResources().getDisplayMetrics().density
-              local layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                math.floor(200 * dp + 0.5)
-              )
-              scrollView.setLayoutParams(layoutParams)
-            
-              layout.addView(scrollView)
-            
-              local builder = AlertDialog.Builder(activity)
-              builder.setView(layout)
-              builder.setNegativeButton("Git", nil)
-              builder.setPositiveButton("Telegram", nil)
-              builder.setNeutralButton("取消", nil)
-              builder.setCancelable(false)
-              local dialog = builder.show()
-              
-              dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setAllCaps(false)
-              dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(View.OnClickListener{
-                onClick = function()
-                  activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/GitMetaio/Surfing")))
-                end
-              })
-            
-              dialog.getButton(AlertDialog.BUTTON_POSITIVE).setAllCaps(false)
-              dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(View.OnClickListener{
-                onClick = function()
-                  activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+vvlXyWYl6HowMTBl")))
-                end
-              })
-            
-              dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setAllCaps(false)
-            
-            
-            Http.get("https://api-ipv4.ip.sb/geoip", nil, "UTF-8", headers, function(geoCode, geoContent)
-                if geoCode == 200 and geoContent then
-                    local obj = JSONObject(geoContent)
-                    local timezone = obj.optString("timezone", "获取失败...")
-                    local isp = obj.optString("isp", "获取失败...")
-                    local asn = obj.optInt("asn", 0)
-                    local ipV4 = obj.optString("ip", "获取失败...")
-            
-                    addStyledText("\nAPI ip.sb", 14, 0xFF444444)
-                    addStyledText(timezone, 14, 0xFF444444)
-                    addStyledText(isp, 14, 0xFF444444)
-                    addStyledText("ASN: " .. asn, 14, 0xFF444444)
-                    addStyledText("IPv4: " .. ipV4, 14, 0xFF444444)
-                    
-                    Http.get("https://api-ipv6.ip.sb/geoip", nil, "UTF-8", headers, function(ipv6Code, ipv6Content)
-                        local ipV6Text = "IPv6: 当前节点不支持"
-                        if ipv6Code == 200 and ipv6Content and ipv6Content:match("%S") then
-                            local ok, objV6 = pcall(function() return JSONObject(ipv6Content) end)
-                            if ok then
-                                local ipV6 = objV6.optString("ip", nil)
-                                if ipV6 and ipV6 ~= "" then
-                                    ipV6Text = "IPv6: " .. ipV6
-                                end
-                            end
-                        end
-                        addStyledText(ipV6Text, 14, 0xFF444444)
-                        local peakTriggered = false
-                        local peakExpireTime = 0
-                        local peakBaseCount = 0
-                        
-                        
-                            local lastOnlineCount = nil
-                            local lastUpdateTime = 0
-                            
-                            function getOnlineCount()
-                                local now = os.time()
-                                local minCount, maxCount = 28000, 31000
-                            
-                                if not lastOnlineCount then
-                                    lastOnlineCount = math.random(minCount, maxCount)
-                                    lastUpdateTime = now
-                                    return lastOnlineCount
-                                end
-                            
-                                local delta = now - lastUpdateTime
-                            
-                                if delta < math.random(5, 15) then
-                                    return lastOnlineCount
-                                end
-                            
-                                local changePercent = math.random(-3, 3) / 100
-                                local newCount = math.floor(lastOnlineCount * (1 + changePercent))
-                            
-                                if newCount < minCount then newCount = minCount end
-                                if newCount > maxCount then newCount = maxCount end
-                            
-                                lastOnlineCount = newCount
-                                lastUpdateTime = now
-                            
-                                return newCount
-                            end
- 
-                            Http.get("https://6.ipw.cn", nil, "UTF-8", headers, function(code, content)
-                                local ipText = nil
-                                local networkTypeText = nil  -- 不再默认赋值
-                            
-                                if code == 200 and content then
-                                    local ipv6 = content:match("([0-9a-fA-F:]+:[0-9a-fA-F:]+)")
-                                    if ipv6 then
-                                        ipText = ipv6
-                                        networkTypeText = "您的网络 IPv6 优先"
-                                    end
-                                end
-                            
-                                addStyledText("\nIPw.cn", 14, 0xFF444444)
-                            
-                                if ipText then
-                                    addStyledText(networkTypeText, 14, 0xFF444444)
-                                    addStyledText(ipText, 14, 0xFF444444)
-                                    
-                                    local onlineCount = getOnlineCount()
-                                    addStyledText("\n😊当前在线 " .. onlineCount .. " 人", 14, 0xFF444444)
-                                    addStyledText("@Surfing Web.apk 2023.", 16, 0xFF444444)
-                                else
-                            
-                                    Http.get("https://4.ipw.cn", nil, "UTF-8", headers, function(v4code, v4content)
-                                        local ipv4 = v4content and v4content:match("(%d+%.%d+%.%d+%.%d+)")
-                                        if v4code == 200 and ipv4 then
-                                            ipText = ipv4
-                                            networkTypeText = "当前网络 IPv6 不可达，使用 IPv4"
-                                        else
-                                            networkTypeText = "当前网络 IPv6/IPv4 不可达，可能网站错误"
-                                        end
-                            
-                                        addStyledText(networkTypeText, 14, 0xFF444444)
-                                        if ipText then
-                                            addStyledText(ipText, 14, 0xFF444444)
-                                        end
-                                
-                                        local onlineCount = getOnlineCount()
-                                        addStyledText("\n😊当前在线 " .. onlineCount .. " 人", 14, 0xFF444444)
-                                        addStyledText("@Surfing Web.apk 2023.", 16, 0xFF444444)
-                                    end)
-                                end
-                            end)
-                            
-                        end)
-                    end
-                end)
-            end
-            
-            menu.add("元数据").onMenuItemClick = function(a)
+
+            menu.add("元数据").onMenuItemClick = function()
                 if isNetworkAvailable() then
-                   getLastCommitTime()
+                    getLastCommitTime()
                 else
-                   Toast.makeText(activity, "当前网络不可用！", 0).show()
+                    Toast.makeText(activity, "当前网络不可用！", 0).show()
                 end
             end
-            
-            menu.add("点我闪退(Exit)").onMenuItemClick = function(a)
+
+            menu.add("点我闪退(Exit)").onMenuItemClick = function()
                 activity.finish()
                 os.exit(0)
             end
-            
+
             if pushNotification == "开" then
-                menu.add(menuTitle).onMenuItemClick = function(a)
+                menu.add(menuTitle).onMenuItemClick = function()
                     Toast.makeText(activity, "正在拉取中...", Toast.LENGTH_SHORT).show()
                     Handler().postDelayed(function()
                         loadInfo()
                     end, 2700)
                 end
             end
+
             pop.show()
         end
     else
