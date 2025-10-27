@@ -196,29 +196,48 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                 dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setAllCaps(false)
 
                 addStyledText("\nAPI ip.sb", 14, 0xFF444444)
-                local timezoneTv = addStyledText("正在获取时区...", 14, 0xFF444444)
-                local ispTv = addStyledText("正在获取 ISP...", 14, 0xFF444444)
-                local asnTv = addStyledText("ASN: ...", 14, 0xFF444444)
-                local ipv4Tv = addStyledText("IPv4: ...", 14, 0xFF444444)
-                local ipv6Tv = addStyledText("IPv6: ...", 14, 0xFF444444)
-
+                local timezoneTv = addStyledText("获取中...", 14, 0xFF444444)
+                local ispTv = addStyledText("获取中...", 14, 0xFF444444)
+                local asnTv = addStyledText("ASN: 正在检测...", 14, 0xFF444444)
+                local ipv4Tv = addStyledText("IPv4: 正在检测...", 14, 0xFF444444)
+                local ipv6Tv = addStyledText("IPv6: 正在检测...", 14, 0xFF444444)
+                
                 Http.get("https://api-ipv4.ip.sb/geoip", nil, "UTF-8", headers, function(code, content)
                     if code == 200 and content then
-                        local obj = JSONObject(content)
-                        timezoneTv.setText(obj.optString("timezone", "获取失败..."))
-                        ispTv.setText(obj.optString("isp", "获取失败..."))
-                        asnTv.setText("ASN: " .. obj.optInt("asn", 0))
-                        ipv4Tv.setText("IPv4: " .. obj.optString("ip", "获取失败..."))
+                        local ok, obj = pcall(function() return JSONObject(content) end)
+                        if ok then
+                            local tz = obj.optString("timezone", "")
+                            if tz ~= "" then
+                                timezoneTv.setText(tz)
+                            else
+                                timezoneTv.setText("获取失败...")
+                            end
+                
+                            local isp = obj.optString("isp", "")
+                            if isp ~= "" then
+                                ispTv.setText(isp)
+                            else
+                                ispTv.setText("获取失败...")
+                            end
+                
+                            asnTv.setText("ASN: " .. obj.optInt("asn", 0))
+                            ipv4Tv.setText("IPv4: " .. obj.optString("ip", "获取失败..."))
+                        else
+                            timezoneTv.setText("获取失败...")
+                            ispTv.setText("获取失败..." )
+                            asnTv.setText("ASN: 获取失败...")
+                            ipv4Tv.setText("IPv4: 获取失败...")
+                        end
                     else
-                        timezoneTv.setText("时区获取失败")
-                        ispTv.setText("ISP 获取失败")
-                        asnTv.setText("ASN 获取失败")
-                        ipv4Tv.setText("IPv4 获取失败")
+                        timezoneTv.setText("获取失败...")
+                        ispTv.setText("获取失败...")
+                        asnTv.setText("ASN: 获取失败...")
+                        ipv4Tv.setText("IPv4: 获取失败...")
                     end
                 end)
-
+                
                 Http.get("https://api-ipv6.ip.sb/geoip", nil, "UTF-8", headers, function(code, content)
-                    local ipV6Text = "IPv6: 当前节点不支持"
+                    local ipV6Text = "IPv6: 当前节点不支持..."
                     if code == 200 and content and content:match("%S") then
                         local ok, objV6 = pcall(function() return JSONObject(content) end)
                         if ok then
@@ -228,7 +247,7 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                     end
                     ipv6Tv.setText(ipV6Text)
                 end)
-
+                
                 addStyledText("\n@Surfing Web.apk 2023.", 16, 0xFF444444)
             end
 
