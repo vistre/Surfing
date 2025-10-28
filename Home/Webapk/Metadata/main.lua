@@ -41,6 +41,44 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                 builder.show()
             end
 
+            menu.add("应用过滤").onMenuItemClick = function()
+                local targetPkg = " "
+                local targetAct = " "
+                local intent = Intent()
+                intent.setClassName(targetPkg, targetAct)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                local ok, err = pcall(function()
+                    activity.startActivity(intent)
+                end)
+                if not ok then
+                    local errorDialog = AlertDialog.Builder(activity)
+                    --errorDialog.setTitle("无法打开")
+                    --errorDialog.setMessage("请检查目标应用是否已安装！\n\n错误详情: " .. tostring(err))
+                    errorDialog.setPositiveButton("确定", nil)
+                    errorDialog.setCancelable(false)
+                    errorDialog.show()
+                end
+            end
+            
+            menu.add("Surfingtile 设置").onMenuItemClick = function()
+                local targetPkg = " "
+                local targetAct = " "
+                local intent = Intent()
+                intent.setClassName(targetPkg, targetAct)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                local ok, err = pcall(function()
+                    activity.startActivity(intent)
+                end)
+                if not ok then
+                    local errorDialog = AlertDialog.Builder(activity)
+                    --errorDialog.setTitle("无法打开")
+                    --errorDialog.setMessage("请检查目标应用是否已安装！\n\n错误详情: " .. tostring(err))
+                    errorDialog.setPositiveButton("确定", nil)
+                    errorDialog.setCancelable(false)
+                    errorDialog.show()
+                end
+            end
+
             menu.add("设置 URL").onMenuItemClick = function()
                 local builder = AlertDialog.Builder(activity)
                 builder.setTitle("设置URL")
