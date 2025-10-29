@@ -52,7 +52,7 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                 end)
                 if not ok then
                     local errorDialog = AlertDialog.Builder(activity)
-                    --errorDialog.setTitle("无法打开")
+                    errorDialog.setTitle("还没写好:)")
                     --errorDialog.setMessage("请检查目标应用是否已安装！\n\n错误详情: " .. tostring(err))
                     errorDialog.setPositiveButton("确定", nil)
                     errorDialog.setCancelable(false)
@@ -71,7 +71,7 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
                 end)
                 if not ok then
                     local errorDialog = AlertDialog.Builder(activity)
-                    --errorDialog.setTitle("无法打开")
+                    errorDialog.setTitle("还没写好:)")
                     --errorDialog.setMessage("请检查目标应用是否已安装！\n\n错误详情: " .. tostring(err))
                     errorDialog.setPositiveButton("确定", nil)
                     errorDialog.setCancelable(false)
