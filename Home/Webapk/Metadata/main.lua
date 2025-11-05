@@ -322,7 +322,7 @@ Http.get(url2 .. "?t=" .. os.time(), nil, "UTF-8", headers, function(code, conte
             end
 
             menu.add("更新 WebView").onMenuItemClick = function()
-                webView.loadUrl("https://play.google.com/store/apps/details?id=com.google.android.webview")
+                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.webview")))
             end
 
             menu.add("点我闪退(Exit)").onMenuItemClick = function()
